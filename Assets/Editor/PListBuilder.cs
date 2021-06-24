@@ -42,11 +42,13 @@ public class PListBuilder : MonoBehaviour
 
 public class PListEditor : EditorWindow
 {
-    private Plist list = new Plist();
+    private static Plist list = new Plist();
+    private static List<string> capabilities;
 
-    [MenuItem("Build Tools/Plist Editor")]
+    [MenuItem("Build Tools/Property List Editor")]
     public static void Init()
     {
+        capabilities = new List<string>();
         PListEditor window = (PListEditor)EditorWindow.GetWindow(typeof(PListEditor));
         window.Show();
     }
@@ -59,7 +61,25 @@ public class PListEditor : EditorWindow
         list.PermissionsMicrophone = EditorGUILayout.TextField("Microphone", list.PermissionsMicrophone);
         list.PermissionsPhotoLibrary = EditorGUILayout.TextField("Photo Library", list.PermissionsPhotoLibrary);
         GUILayout.Label("Other", EditorStyles.boldLabel);
-        GUILayout.Label("UIRequiredDeviceCapabilities", EditorStyles.label);
+        GUILayout.Label("Required Capabilities", EditorStyles.label);
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("+", EditorStyles.miniButton, GUILayout.Width(20)))
+        {
+            capabilities.Add("");
+        }
+        EditorGUI.BeginDisabledGroup(capabilities.Count == 0);
+        if (GUILayout.Button("-", EditorStyles.miniButton, GUILayout.Width(20)))
+        {
+            capabilities.RemoveAt(capabilities.Count-1);
+        }
+        EditorGUI.EndDisabledGroup();
+        GUILayout.EndHorizontal();
+
+        for (int i = 0; i < capabilities.Count; i++)
+        {
+            capabilities[i] = EditorGUILayout.TextField("", capabilities[i]);
+        }
 
         if (GUILayout.Button("Apply"))
         {
@@ -75,9 +95,11 @@ public class PListEditor : EditorWindow
 }
 
 
-public struct Plist
+public class Plist
 {
     public string PermissionsCamera;
     public string PermissionsMicrophone;
     public string PermissionsPhotoLibrary;
+
+    public List<string> RequiredCapabilities;
 }
